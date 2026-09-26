@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>دفتر گزارش کار | دوازدهم ریاضی</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css">
+<style>
+  :root{
+    --bg:#0b1020;
+    --card:rgba(255,255,255,.045);
+    --border:rgba(255,255,255,.09);
+    --text:#e8ecf8;
+    --muted:#8d97b5;
+    --accent:#6c8cff;
+  }
+
+  *{box-sizing:border-box;}
+
+  html,body{margin:0;padding:0;}
+
+  body{
+    font-family:'Vazirmatn', Tahoma, system-ui, sans-serif;
+    color:var(--text);
+    min-height:100vh;
+    padding:28px 18px 90px;
+    background:
+      radial-gradient(1000px 620px at 100% -5%, rgba(108,140,255,.20), transparent 60%),
+      radial-gradient(900px 520px at -5% 105%, rgba(176,108,255,.18), transparent 60%),
+      var(--bg);
+    background-attachment:fixed;
+  }
+
+  .wrap{max-width:1260px;margin:0 auto;}
+
+  /* ---------- هدر ---------- */
+  .top{
+    display:flex;flex-wrap:wrap;gap:18px;
+    align-items:center;justify-content:space-between;
+    margin-bottom:26px;
+  }
+  .brand{display:flex;align-items:center;gap:14px;}
+  .logo{
+    width:54px;height:54px;border-radius:17px;display:grid;place-items:center;
+    font-size:26px;flex:none;
+    background:linear-gradient(135deg,#6c8cff,#b06cff);
+    box-shadow:0 12px 34px rgba(108,140,255,.4);
+  }
+  h1{font-size:21px;margin:0 0 5px;font-weight:700;letter-spacing:-.3px;}
+  .sub{color:var(--muted);font-size:12.5px;margin:0;}
+
+  .actions{display:flex;gap:10px;flex-wrap:wrap;align-items:center;}
+
+  .btn{
+    border:1px solid var(--border);
+    background:rgba(255,255,255,.06);
+    color:var(--text);
+    padding:11px 18px;border-radius:13px;cursor:pointer;
+    font-family:inherit;font-size:13.5px;font-weight:500;
+    transition:.2s;display:inline-flex;align-items:center;gap:7px;
+  }
+  .btn:hover{background:rgba(255,255,255,.12);transform:translateY(-1px);}
+  .btn:active{transform:translateY(0);}
+  .btn.primary{
+    background:linear-gradient(135deg,#6c8cff,#8b5cf6);
+    border-color:transparent;
+    box-shadow:0 10px 28px rgba(108,140,255,.38);
+  }
+  .btn.primary:hover{filter:brightness(1.08);}
+  .btn.danger:hover{background:rgba(255,90,90,.14);border-color:rgba(255,90,90,.42);color:#ffb3b3;}
+
+  .saved-at{
+    font-size:11.5px;color:var(--muted);
+    padding:8px 13px;border-radius:11px;
+    background:rgba(255,255,255,.04);
+    border:1px solid var(--border);
+    white-space:nowrap;
+  }
+
+  /* ---------- آمار کلی ---------- */
+  .stats{
+    display:grid;grid-template-columns:repeat(auto-fit,minmax(155px,1fr));
+    gap:14px;margin-bottom:26px;
+  }
+  .stat{
+    background:var(--card);border:1px solid var(--border);
+    border-radius:18px;padding:16px 18px;
+    backdrop-filter:blur(12px);
+    transition:.25s;
+  }
+  .stat:hover{border-color:rgba(108,140,255,.32);transform:translateY(-2px);}
+  .stat-label{display:block;font-size:11.5px;color:var(--muted);margin-bottom:9px;}
+  .stat-value{
+    font-size:21px;font-weight:700;
+    background:linear-gradient(135deg,#ffffff,#9fb2ff);
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+  }
+
+  /* ---------- کارت روزها ---------- */
+  .days{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(295px,1fr));
+    gap:18px;
+  }
+  .day-card{
+    background:linear-gradient(180deg,rgba(255,255,255,.055),rgba(255,255,255,.022));
+    border:1px solid var(--border);
+    border-radius:20px;padding:16px;
+    backdrop-filter:blur(14px);
+    transition:.25s;
+  }
+  .day-card:hover{border-color:rgba(108,140,255,.3);}
+  .day-card.has-data{
+    border-color:rgba(108,140,255,.45);
+    box-shadow:0 0 0 1px rgba(108,140,255,.14), 0 14px 36px rgba(0,0,0,.35);
+  }
+  .day-card.today{
+    background:linear-gradient(180deg,rgba(108,140,255,.14),rgba(255,255,255,.025));
+    border-color:rgba(108,140,255,.4);
+  }
+
+  .day-head{
+    display:flex;align-items:center;justify-content:space-between;
+    gap:10px;margin-bottom:13px;
+  }
+  .day-head h3{margin:0;font-size:15.5px;font-weight:700;display:flex;align-items:center;gap:8px;}
+  .today-tag{
+    font-size:10px;font-weight:600;padding:3px 8px;border-radius:999px;
+    background:linear-gradient(135deg,#6c8cff,#8b5cf6);color:#fff;
+  }
+  .day-badge{
+    font-size:11px;padding:5px 11px;border-radius:999px;white-space:nowrap;
+    background:rgba(108,140,255,.16);color:#a9bdff;
+    border:1px solid rgba(108,140,255,.28);
+    transition:.25s;
+  }
+  .day-badge.idle{
+    background:rgba(255,255,255,.05);color:var(--muted);border-color:var(--border);
+  }
+
+  /* ---------- جدول داخل کارت ---------- */
+  .tbl-head,.tbl-row{
+    display:grid;
+    grid-template-columns:1.3fr .72fr .72fr 1fr;
+    gap:8px;align-items:center;
+  }
+  .tbl-head{
+    font-size:11px;color:var(--muted);
+    padding:0 7px 9px;text-align:center;
+  }
+  .tbl-head span:first-child{text-align:right;}
+
+  .tbl-row{padding:6px;border-radius:12px;transition:.2s;}
+  .tbl-row:hover{background:rgba(255,255,255,.04);}
+
+  .subj{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:500;}
+  .subj i{width:8px;height:8px;border-radius:50%;flex:none;display:inline-block;}
+
+  .tbl-row input{
+    width:100%;
+    background:rgba(0,0,0,.26);
+    border:1px solid var(--border);
+    border-radius:10px;
+    color:var(--text);
+    font-family:inherit;font-size:13px;
+    padding:8px 5px;text-align:center;
+    outline:none;transition:.2s;
+    -moz-appearance:textfield;
+  }
+  .tbl-row input::-webkit-outer-spin-button,
+  .tbl-row input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0;}
+  .tbl-row input::placeholder{color:rgba(141,151,181,.45);}
+  .tbl-row input:focus{
+    border-color:rgba(108,140,255,.75);
+    background:rgba(108,140,255,.1);
+    box-shadow:0 0 0 3px rgba(108,140,255,.13);
+  }
+
+  /* ---------- پنل جمع کل ---------- */
+  .panel{
+    margin-top:26px;padding:22px;
+    background:var(--card);border:1px solid var(--border);
+    border-radius:20px;backdrop-filter:blur(12px);
+  }
+  .panel h2{margin:0 0 16px;font-size:16px;font-weight:700;}
+
+  table.summary{width:100%;border-collapse:collapse;font-size:13.5px;}
+  .summary th{
+    text-align:right;font-size:11.5px;color:var(--muted);
+    font-weight:500;padding:10px 12px;
+    border-bottom:1px solid var(--border);
+  }
+  .summary td{padding:12px;border-bottom:1px solid rgba(255,255,255,.05);}
+  .summary th:not(:first-child),
+  .summary td:not(:first-child){text-align:center;}
+  .summary tr:last-child td{border-bottom:none;}
+  .summary .total-row td{
+    font-weight:700;
+    background:rgba(108,140,255,.09);
+  }
+  .summary .total-row td:first-child{border-radius:0 12px 12px 0;}
+  .summary .total-row td:last-child{border-radius:12px 0 0 12px;}
+
+  /* ---------- توست ---------- */
+  .toast{
+    position:fixed;bottom:28px;left:50%;
+    transform:translate(-50%,140%);
+    background:linear-gradient(135deg,#6c8cff,#8b5cf6);
+    color:#fff;padding:13px 28px;border-radius:14px;
+    font-size:13.5px;font-weight:600;
+    box-shadow:0 16px 44px rgba(108,140,255,.48);
+    transition:transform .38s cubic-bezier(.2,.9,.3,1.35);
+    z-index:99;pointer-events:none;
+  }
+  .toast.show{transform:translate(-50%,0);}
+
+  /* ---------- موبایل ---------- */
+  @media (max-width:560px){
+    body{padding:18px 12px 80px;}
+    h1{font-size:18px;}
+    .logo{width:46px;height:46px;font-size:22px;border-radius:14px;}
+    .btn{padding:9px 14px;font-size:12.5px;}
+    .days{grid-template-columns:1fr;}
+    .tbl-head,.tbl-row{grid-template-columns:1.15fr .7fr .7fr .9fr;gap:6px;}
+    .tbl-row input{font-size:12px;padding:7px 4px;}
+    .subj{font-size:12px;gap:6px;}
+    .saved-at{font-size:10.5px;}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- هدر -->
+  <header class="top">
+    <div class="brand">
+      <div class="logo">📘</div>
+      <div>
+        <h1>دفتر گزارش کار</h1>
+        <p class="sub">پایه دوازدهم ریاضی · ثبت هفتگی صفحه، تست و زمان مطالعه</p>
+      </div>
+    </div>
+
+    <div class="actions">
+      <span class="saved-at" id="savedAt">هنوز ذخیره‌ای انجام نشده</span>
+      <button class="btn primary" id="saveBtn">💾 ذخیره گزارش</button>
+      <button class="btn danger" id="clearBtn">🗑 پاک کردن</button>
+    </div>
+  </header>
+
+  <!-- آمار کلی -->
+  <section class="stats">
+    <div class="stat">
+      <span class="stat-label">مجموع صفحات</span>
+      <span class="stat-value" id="sumPages">۰</span>
+    </div>
+    <div class="stat">
+      <span class="stat-label">مجموع تست‌ها</span>
+      <span class="stat-value" id="sumTests">۰</span>
+    </div>
+    <div class="stat">
+      <span class="stat-label">مجموع زمان</span>
+      <span class="stat-value" id="sumTime">۰ دقیقه</span>
+    </div>
+    <div class="stat">
+      <span class="stat-label">میانگین روزانه</span>
+      <span class="stat-value" id="avgTime">۰ دقیقه</span>
+    </div>
+  </section>
+
+  <!-- روزهای هفته -->
+  <section class="days" id="daysGrid"></section>
+
+  <!-- جمع کل -->
+  <section class="panel">
+    <h2>📊 جمع کل هفته به تفکیک درس</h2>
+    <table class="summary">
+      <thead>
+        <tr>
+          <th>درس</th>
+          <th>صفحه</th>
+          <th>تست</th>
+          <th>زمان</th>
+        </tr>
+      </thead>
+      <tbody id="summaryBody"></tbody>
+    </table>
+  </section>
+
+</div>
+
+<div class="toast" id="toast">ذخیره شد</div>
+
+<script>
+/* ============ تنظیمات پایه ============ */
+const DAYS = ['شنبه','یکشنبه','دوشنبه','سه‌شنبه','چهارشنبه','پنجشنبه','جمعه'];
+
+const SUBJECTS = [
+  { name:'حسابان',  color:'#6c8cff' },
+  { name:'فیزیک',   color:'#38bdf8' },
+  { name:'شیمی',    color:'#34d399' },
+  { name:'هندسه',   color:'#fbbf24' },
+  { name:'گسسته',   color:'#f472b6' },
+];
+
+const FIELDS = ['pages','tests','time'];
+const KEY = 'gozaresh-kar-v1';
+
+/* روز جاری (هفته ایرانی: شنبه = 0) */
+const todayIdx = (new Date().getDay() + 1) % 7;
+
+/* ============ ابزارها ============ */
+const $ = s => document.querySelector(s);
+
+const fa = n => Number(n).toLocaleString('fa-IR');
+const num = v => { const n = parseFloat(v); return Number.isFinite(n) && n > 0 ? n : 0; };
+
+function fmtTime(m){
+  m = Math.round(m);
+  if (!m) return '۰ دقیقه';
+  const h = Math.floor(m / 60), r = m % 60;
+  if (h && r) return `${fa(h)} س ${fa(r)} د`;
+  if (h) return `${fa(h)} ساعت`;
+  return `${fa(r)} دقیقه`;
+}
+
+function createEmpty(){
+  const s = {};
+  DAYS.forEach(d => {
+    s[d] = {};
+    SUBJECTS.forEach(sub => s[d][sub.name] = { pages:'', tests:'', time:'' });
+  });
+  return s;
+}
+
+function normalize(raw){
+  const s = createEmpty();
+  if (!raw || typeof raw !== 'object') return s;
+  DAYS.forEach(d => SUBJECTS.forEach(sub => {
+    const v = raw?.[d]?.[sub.name];
+    if (v && typeof v === 'object') {
+      FIELDS.forEach(f => { if (v[f] != null && v[f] !== '') s[d][sub.name][f] = String(v[f]); });
+    }
+  }));
+  return s;
+}
+
+/* ============ ذخیره‌سازی ============ */
+let state = createEmpty();
+let savedAt = null;
+
+function loadStore(){
+  try{
+    const raw = JSON.parse(localStorage.getItem(KEY));
+    if (!raw) return;
+    savedAt = raw.savedAt || null;
+    state = normalize(raw.data ?? raw);
+  }catch(e){ /* داده خراب → نادیده بگیر */ }
+}
+
+function persist(){
+  savedAt = new Date().toISOString();
+  localStorage.setItem(KEY, JSON.stringify({ savedAt, data: state }));
+  renderSavedAt();
+}
+
+function renderSavedAt(){
+  const el = $('#savedAt');
+  if (!savedAt){ el.textContent = 'هنوز ذخیره‌ای انجام نشده'; return; }
+  const t = new Date(savedAt).toLocaleTimeString('fa-IR', {hour:'2-digit', minute:'2-digit'});
+  el.textContent = 'آخرین ذخیره: ' + t;
+}
+
+/* ذخیره خودکار با تأخیر */
+let saveTimer;
+function scheduleSave(){
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(persist, 600);
+}
+
+/* ============ ساخت رابط کاربری ============ */
+function render(){
+  $('#daysGrid').innerHTML = DAYS.map((day, i) => `
+    <article class="day-card ${i === todayIdx ? 'today' : ''}" data-card="${day}">
+      <header class="day-head">
+        <h3>${day}${i === todayIdx ? '<span class="today-tag">امروز</span>' : ''}</h3>
+        <span class="day-badge idle" data-day-badge="${day}">—</span>
+      </header>
+      <div class="tbl">
+        <div class="tbl-head">
+          <span>درس</span><span>صفحه</span><span>تست</span><span>زمان</span>
+        </div>
+        ${SUBJECTS.map(s => `
+          <div class="tbl-row">
+            <span class="subj"><i style="background:${s.color}"></i>${s.name}</span>
+            ${FIELDS.map(f => `
+              <input type="number" min="0" step="1" inputmode="numeric" placeholder="0"
+                     data-day="${day}" data-subj="${s.name}" data-field="${f}">
+            `).join('')}
+          </div>
+        `).join('')}
+      </div>
+    </article>
+  `).join('');
+
+  /* پر کردن مقادیر ذخیره‌شده */
+  document.querySelectorAll('input[data-day]').forEach(inp => {
+    const { day, subj, field } = inp.dataset;
+    inp.value = state[day][subj][field] ?? '';
+  });
+}
+
+/* ============ محاسبه و به‌روزرسانی ============ */
+function updateAll(){
+  const per = {};
+  SUBJECTS.forEach(s => per[s.name] = { pages:0, tests:0, time:0 });
+
+  let totPages = 0, totTests = 0, totTime = 0;
+
+  DAYS.forEach(day => {
+    let dayTime = 0, hasData = false;
+
+    SUBJECTS.forEach(s => {
+      const v = state[day][s.name];
+      const p = num(v.pages), t = num(v.tests), ti = num(v.time);
+
+      per[s.name].pages += p;
+      per[s.name].tests += t;
+      per[s.name].time  += ti;
+
+      dayTime += ti;
+      if (p || t || ti) hasData = true;
+    });
+
+    totPages += Object.values(per).reduce((a,b) => a, 0) && 0; // placeholder (جمع واقعی پایین‌تر)
+    totTime  += dayTime;
+
+    const badge = document.querySelector(`[data-day-badge="${day}"]`);
+    if (badge){
+      badge.textContent = dayTime ? fmtTime(dayTime) : 'بدون ثبت';
+      badge.classList.toggle('idle', !dayTime);
+    }
+
+    document.querySelector(`[data-card="${day}"]`)
+      ?.classList.toggle('has-data', hasData);
+  });
+
+  /* جمع کل از روی per */
+  totPages = SUBJECTS.reduce((a,s) => a + per[s.name].pages, 0);
+  totTests = SUBJECTS.reduce((a,s) => a + per[s.name].tests, 0);
+  totTime  = SUBJECTS.reduce((a,s) => a + per[s.name].time, 0);
+
+  /* آمار بالای صفحه */
+  $('#sumPages').textContent = fa(totPages);
+  $('#sumTests').textContent = fa(totTests);
+  $('#sumTime').textContent  = fmtTime(totTime);
+  $('#avgTime').textContent  = fmtTime(totTime / 7);
+
+  /* جدول جمع کل */
+  $('#summaryBody').innerHTML = SUBJECTS.map(s => `
+    <tr>
+      <td><span class="subj"><i style="background:${s.color}"></i>${s.name}</span></td>
+      <td>${fa(per[s.name].pages)}</td>
+      <td>${fa(per[s.name].tests)}</td>
+      <td>${per[s.name].time ? fmtTime(per[s.name].time) : '—'}</td>
+    </tr>
+  `).join('') + `
+    <tr class="total-row">
+      <td>مجموع کل</td>
+      <td>${fa(totPages)}</td>
+      <td>${fa(totTests)}</td>
+      <td>${fmtTime(totTime)}</td>
+    </tr>
+  `;
+}
+
+/* ============ رویدادها ============ */
+$('#daysGrid').addEventListener('input', e => {
+  const inp = e.target;
+  if (!inp.matches('input[data-day]')) return;
+
+  const { day, subj, field } = inp.dataset;
+  state[day][subj][field] = inp.value;
+
+  updateAll();
+  scheduleSave();
+});
+
+$('#saveBtn').addEventListener('click', () => {
+  persist();
+  toast('گزارش هفته ذخیره شد ✓');
+});
+
+$('#clearBtn').addEventListener('click', () => {
+  if (!confirm('همه‌ی گزارش‌ها پاک شود؟ این کار قابل بازگشت نیست.')) return;
+  state = createEmpty();
+  savedAt = null;
+  localStorage.removeItem(KEY);
+  document.querySelectorAll('input[data-day]').forEach(i => i.value = '');
+  renderSavedAt();
+  updateAll();
+  toast('گزارش پاک شد');
+});
+
+/* ============ توست ============ */
+let toastTimer;
+function toast(msg){
+  const el = $('#toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove('show'), 2200);
+}
+
+/* ============ راه‌اندازی ============ */
+loadStore();
+render();
+renderSavedAt();
+updateAll();
+</script>
+</body>
+</html>
