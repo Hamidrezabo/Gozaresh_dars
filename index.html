@@ -494,4 +494,220 @@ function updateAll(){
     });
     const bS = document.querySelector(`[data-day-badge="${day}-fields-4"]`);
     const bG = document.querySelector(`[data-day-badge="${day}-fields-3"]`);
-    if (bS){ bS.textContent = timeSpec ? fmtTimeLong(
+          if (bS){ bS.textContent = timeSpec ? fmtTimeLong(timeSpec) : 'بدون ثبت'; bS.classList.toggle('idle', !timeSpec); }
+      if (bG){ bG.textContent = timeGen ? fmtTimeLong(timeGen) : 'بدون ثبت'; bG.classList.toggle('idle', !timeGen); }
+      document.querySelector(`[data-card="${day}-fields-4"]`)?.classList.toggle('has-data', hasSpec);
+      document.querySelector(`[data-card="${day}-fields-3"]`)?.classList.toggle('has-data', hasGen);
+    });
+
+    // جدول تخصصی
+    const specTotals = { pages:0, tests:0, essays:0, time:0 };
+    $('#summaryBodySpecial').innerHTML = SPECIALIZED.map(s => {
+      const v = per[s.name];
+      specTotals.pages += v.pages; specTotals.tests += v.tests;
+      specTotals.essays += v.essays; specTotals.time += v.time;
+      return `<tr>
+        <td><span class="subj"><i style="background:${s.color}"></i>${s.name}</span></td>
+        <td>${fa(v.pages)}</td><td>${fa(v.tests)}</td><td>${fa(v.essays)}</td>
+        <td>${v.time ? fmtTime(v.time) : '—'}</td>
+      </tr>`;
+    }).join('') + `<tr class="total-row">
+        <td>مجموع</td>
+        <td>${fa(specTotals.pages)}</td><td>${fa(specTotals.tests)}</td>
+        <td>${fa(specTotals.essays)}</td><td>${fmtTime(specTotals.time)}</td>
+      </tr>`;
+
+    // جدول عمومی
+    const genTotals = { pages:0, essays:0, time:0 };
+    $('#summaryBodyGeneral').innerHTML = GENERAL.map(s => {
+      const v = per[s.name];
+      genTotals.pages += v.pages; genTotals.essays += v.essays; genTotals.time += v.time;
+      return `<tr>
+        <td><span class="subj"><i style="background:${s.color}"></i>${s.name}</span></td>
+        <td>${fa(v.pages)}</td><td>${fa(v.essays)}</td>
+        <td>${v.time ? fmtTime(v.time) : '—'}</td>
+      </tr>`;
+    }).join('') + `<tr class="total-row">
+        <td>مجموع</td>
+        <td>${fa(genTotals.pages)}</td><td>${fa(genTotals.essays)}</td>
+        <td>${fmtTime(genTotals.time)}</td>
+      </tr>`;
+  }
+
+  /* ================== رندر آرشیو ================== */
+  function renderArchive(){
+    const list = $('#archiveList');
+    $('#archiveCount').textContent = archive.length ? `(${fa(archive.length)} هفته)` : '';
+
+    if (!archive.length){
+      list.innerHTML = `<div class="archive-empty">هنوز هیچ هفته‌ای ذخیره نشده. اول گزارش این هفته رو پر کن و روی «💾 ذخیره هفته» بزن.</div>`;
+      return;
+    }
+
+    list.innerHTML = archive.map((w, idx) => {
+      const t = calcTotals(w.data);
+      const specTotals = { pages:0, tests:0, essays:0, time:0 };
+      SPECIALIZED.forEach(s => {
+        const v = t.per[s.name];
+        specTotals.pages += v.pages; specTotals.tests += v.tests;
+        specTotals.essays += v.essays; specTotals.time += v.time;
+      });
+      const genTotals = { pages:0, essays:0, time:0 };
+      GENERAL.forEach(s => {
+        const v = t.per[s.name];
+        genTotals.pages += v.pages; genTotals.essays += v.essays; genTotals.time += v.time;
+      });
+
+      const specRows = SPECIALIZED.map(s => {
+        const v = t.per[s.name];
+        return `<tr><td><span class="subj"><i style="background:${s.color}"></i>${s.name}</span></td>
+          <td>${fa(v.pages)}</td><td>${fa(v.tests)}</td><td>${fa(v.essays)}</td>
+          <td>${v.time ? fmtTime(v.time) : '—'}</td></tr>`;
+      }).join('') + `<tr class="total-row"><td>مجموع تخصصی</td>
+        <td>${fa(specTotals.pages)}</td><td>${fa(specTotals.tests)}</td>
+        <td>${fa(specTotals.essays)}</td><td>${fmtTime(specTotals.time)}</td></tr>`;
+
+      const genRows = GENERAL.map(s => {
+        const v = t.per[s.name];
+        return `<tr><td><span class="subj"><i style="background:${s.color}"></i>${s.name}</span></td>
+          <td>${fa(v.pages)}</td><td>${fa(v.essays)}</td>
+          <td>${v.time ? fmtTime(v.time) : '—'}</td></tr>`;
+      }).join('') + `<tr class="total-row"><td>مجموع عمومی</td>
+        <td>${fa(genTotals.pages)}</td><td>${fa(genTotals.essays)}</td>
+        <td>${fmtTime(genTotals.time)}</td></tr>`;
+
+      return `
+        <div class="archive-card" data-idx="${idx}">
+          <div class="archive-head">
+            <div>
+              <div class="archive-date">🗓 هفته‌ی ${w.weekLabel}</div>
+              <div class="archive-save-time">ذخیره: ${formatSaveTime(w.savedAt)}</div>
+            </div>
+            <div class="archive-totals">
+              <span class="arch-total">📄 ${fa(t.totPages)} صفحه</span>
+              <span class="arch-total">✏️ ${fa(t.totTests)} تست</span>
+              <span class="arch-total">📝 ${fa(t.totEssays)} تشریحی</span>
+              <span class="arch-total">⏱ ${fmtTimeLong(t.totTime)}</span>
+            </div>
+          </div>
+          <div class="archive-actions">
+            <button class="btn small" data-act="toggle">👁 نمایش جزئیات</button>
+            <button class="btn small" data-act="load">📥 بارگیری در فرم</button>
+            <button class="btn small danger" data-act="del">🗑 حذف</button>
+          </div>
+          <div class="archive-detail hidden">
+            <h4>📐 دروس تخصصی</h4>
+            <table class="summary">
+              <thead><tr><th>درس</th><th>صفحه</th><th>تستی</th><th>تشریحی</th><th>زمان</th></tr></thead>
+              <tbody>${specRows}</tbody>
+            </table>
+            <h4 style="margin-top:16px;">📚 دروس عمومی</h4>
+            <table class="summary">
+              <thead><tr><th>درس</th><th>صفحه</th><th>تشریحی</th><th>زمان</th></tr></thead>
+              <tbody>${genRows}</tbody>
+            </table>
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  /* ================== رویدادها ================== */
+  $('#daysGridSpecial').addEventListener('input', onInput);
+  $('#daysGridGeneral').addEventListener('input', onInput);
+
+  function onInput(e){
+    const inp = e.target;
+    if (!inp.matches('input[data-day]')) return;
+    const { day, subj, field } = inp.dataset;
+    state[day][subj][field] = inp.value;
+    updateAll();
+    scheduleSave();
+  }
+
+  /* تب‌ها */
+  document.querySelectorAll('.tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      activeTab = tab.dataset.tab;
+      document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t === tab));
+      $('#daysGridSpecial').classList.toggle('hidden', activeTab !== 'special');
+      $('#daysGridGeneral').classList.toggle('hidden', activeTab !== 'general');
+      $('#summarySpecial').classList.toggle('hidden', activeTab !== 'special');
+      $('#summaryGeneral').classList.toggle('hidden', activeTab !== 'general');
+    });
+  });
+
+  /* ذخیره هفته */
+  $('#saveBtn').addEventListener('click', () => {
+    const weekKey = getWeekKey();
+    const exists = archive.some(w => w.weekKey === weekKey);
+    if (exists && !confirm('این هفته قبلاً ذخیره شده. گزارش جدید جایگزین قبلی بشه؟')) return;
+    saveWeekSnapshot();
+    saveCurrent();
+    toast(exists ? 'گزارش این هفته به‌روز شد ✓' : 'گزارش هفته ذخیره شد ✓');
+  });
+
+  /* پاک کردن فرم */
+  $('#clearBtn').addEventListener('click', () => {
+    if (!confirm('فرم فعلی پاک شود؟ (آرشیو هفته‌ها دست‌نخورده می‌مونه)')) return;
+    state = createEmptyState();
+    document.querySelectorAll('input[data-day]').forEach(i => i.value = '');
+    saveCurrent();
+    updateAll();
+    toast('فرم پاک شد');
+  });
+
+  /* آرشیو */
+  $('#archiveList').addEventListener('click', e => {
+    const btn = e.target.closest('button[data-act]');
+    if (!btn) return;
+    const card = btn.closest('.archive-card');
+    const idx = parseInt(card.dataset.idx, 10);
+    const week = archive[idx];
+    if (!week) return;
+
+    const act = btn.dataset.act;
+    if (act === 'toggle'){
+      const d = card.querySelector('.archive-detail');
+      d.classList.toggle('hidden');
+      btn.textContent = d.classList.contains('hidden') ? '👁 نمایش جزئیات' : '🙈 بستن جزئیات';
+    }
+    else if (act === 'load'){
+      if (!confirm('گزارش این هفته در فرم بارگذاری شود؟ داده‌های فعلی فرم از بین می‌رن.')) return;
+      state = normalizeState(week.data);
+      document.querySelectorAll('input[data-day]').forEach(inp => {
+        const { day, subj, field } = inp.dataset;
+        inp.value = state[day][subj][field] ?? '';
+      });
+      saveCurrent();
+      updateAll();
+      toast('گزارش بارگذاری شد');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+    else if (act === 'del'){
+      if (!confirm(`حذف گزارش هفته‌ی «${week.weekLabel}»؟`)) return;
+      archive.splice(idx, 1);
+      localStorage.setItem(ARCHIVE_KEY, JSON.stringify(archive));
+      renderArchive();
+      toast('حذف شد');
+    }
+  });
+
+  /* توست */
+  let toastTimer;
+  function toast(msg){
+    const el = $('#toast');
+    el.textContent = msg;
+    el.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => el.classList.remove('show'), 2200);
+  }
+
+  /* ================== راه‌اندازی ================== */
+  loadStore();
+  render();
+  updateAll();
+  renderArchive();
+</script>
+</body>
+</html>
